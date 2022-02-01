@@ -2,12 +2,12 @@ import React from 'react';
 import Post from '../Post/Post';
 import './Posts.css';
 
-function Posts() {
+function Posts({ posts }) {
   return (
     <div className='posts'>
-        <Post />
-        <Post />
-        <Post />
+      {posts.map(p=>(
+        <Post post={p} />
+      ))}
     </div>
   );
 }
