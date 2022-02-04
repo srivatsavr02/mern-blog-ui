@@ -8,9 +8,13 @@ function Write() {
   const [desc, setDesc] = useState("");
   const [file, setFile] = useState(null);
   const {user} = useContext(Context);
+  const [uploadError, setUploadError] = useState(false);
+  const [error, setError] = useState(false);
+  const [disable, setDisable] = useState(false);
 
   const handleSubmit = async (e) => {
       e.preventDefault();
+      setDisable(true);
       const newPost = {
           username: user.username,
           title,
@@ -24,21 +28,27 @@ function Write() {
           data.append("file", file);
           newPost.photo = filename;
           try {
-            await axios.post("/upload", data);
+            await axios.post("/upload", data, { headers:  {authorization: "Bearer " + user.accessToken} })
+                        .then((res) => (newPost.photo = res.data.fileId));
           } catch (err) {
-
+            setUploadError(true);
           }
       }
-      try {
-            const res = await axios.post("/posts", newPost)
-            window.location.replace("/post/" + res.data._id)
-          } catch (err) {
-
-          }
-    }
+       try {
+            const res = await axios.post("/posts", newPost, {
+                headers: {authorization: "Bearer " + user.accessToken}
+            });
+            window.location.replace("/post/" + res.data._id);
+        } catch (err) {
+            setError(true);
+        }
+        setDisable(false);
+    };
 
   return (
     <div className='write'>
+        {uploadError && <span className='uploadError'>Upload failed!</span>}
+        {error && <span className='postError'>Invalid post!</span>}
         {file && (
             <img
                 className="writeImg"
@@ -66,7 +76,7 @@ function Write() {
                 />
             </div>
 
-            <button className="writeSubmit" type="submit">
+            <button className="writeSubmit" type="submit" disabled={disable}>
                 Publish
             </button>
         </form>

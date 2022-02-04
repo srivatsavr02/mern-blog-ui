@@ -11,11 +11,28 @@ function Settings() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [success, setSuccess] = useState(false);
+  const [disable, setDisable] = useState(false);
 
-  const PF = "http://localhost:5000/images/";
+  const PF = `https://lh3.googleusercontent.com/d/`;
 
+  const handleDelete = async () => {
+    try {
+        await axios.delete("/users/" + user._id, {
+            headers: {authorization: "Bearer " + user.accessToken},
+            data: {userId: user._id}
+        });
+        dispatch({
+            type:"LOGOUT",
+        });
+        window.location.replace("/");
+    } catch (err) {
+        
+    }
+  }
+  
   const handleSubmit = async (e) => {
         e.preventDefault();
+        setDisable(true);
         dispatch({type: "UPDATE_START"});
         const updatedUser = {
             userId: user._id,
@@ -31,20 +48,27 @@ function Settings() {
             data.append("file", file);
             updatedUser.profilePic = filename;
             try {
-              await axios.post("/upload", data);
+              await axios.post("/upload", data , {headers: {authorization: "Bearer " + user.accessToken}})
+                        .then((res) => (updatedUser.profilePic = res.data.fileId));
             } catch (err) {
   
             }
         }
 
         try {
-            const res = await axios.put("/users/"+user._id, updatedUser);  
+            const res = await axios.put("/users/"+user._id, updatedUser, {
+                headers: {authorization: "Bearer " + user.accessToken}
+            });  
             setSuccess(true); 
-            dispatch({type: "UPDATE_SUCCESS", payload: res.data});
+            dispatch({
+                type: "UPDATE_SUCCESS", 
+                payload: {...res.data, accessToken: user.accessToken}
+            });
         } catch (err) {
             dispatch({type: "UPDATE_FAILURE"});
         }
-    }
+        setDisable(false);
+    };
     
 
   return (
@@ -52,7 +76,7 @@ function Settings() {
         <div className="settingsWrapper">
             <div className="settingsTitle">
                 <span className="settingsTitleUpdate">Update Your Account</span>
-                <span className="settingsTitleDelete">Delete Account</span>
+                <span className="settingsTitleDelete" onClick={handleDelete} >Delete Account</span>
             </div>
 
             <form className="settingsForm" onSubmit={handleSubmit}>
@@ -60,6 +84,7 @@ function Settings() {
                 <div className="settingsPP">
                     <img
                         src={file ? URL.createObjectURL(file) : PF+user.profilePic}
+                        referrerPolicy="no-referrer"
                         alt=""
                     />
                     <label htmlFor="fileInput">
@@ -85,7 +110,7 @@ function Settings() {
                     onChange={(e) => setPassword(e.target.value)} required
                 />
                 
-                <button className="settingsSubmitButton" type="submit" >
+                <button className="settingsSubmitButton" type="submit" disabled={disable} >
                     Update
                 </button>
                 {success && <span style={{color:"green", textAlign:"center", marginTop:"20px"}}>Profile has been updated...</span>}

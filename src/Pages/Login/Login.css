@@ -64,3 +64,11 @@
   cursor: not-allowed;
   background-color: rgb(250, 131, 131);
 }
+
+.loginError {
+  color: red;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  font-weight: 600;
+  font-style: italic;
+}

@@ -3,13 +3,14 @@ import './Post.css';
 import { Link } from 'react-router-dom';
 
 function Post({post}) {
-  const PF = "http://localhost:5000/images/";
+  const PF =  `https://lh3.googleusercontent.com/d/${post.photo}`;
 
   return (
     <div className='post'>
         {post.photo && (
           <img
-            src={PF + post.photo}
+            src={PF}
+            referrerPolicy="no-referrer"
             alt=""
             className="postImg"
           />

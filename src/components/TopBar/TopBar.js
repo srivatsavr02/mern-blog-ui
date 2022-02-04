@@ -5,7 +5,7 @@ import './TopBar.css'
 
 function TopBar() {
   const { user, dispatch } = useContext(Context);
-  const PF = "http://localhost:5000/images/";
+  const PF = `https://lh3.googleusercontent.com/d/`;
 
   const handleLogout = () => {
     dispatch({ type: "LOGOUT" });
@@ -45,6 +45,7 @@ function TopBar() {
                 <img
                   className="topImg"
                   src={PF+user.profilePic}
+                  referrerPolicy="no-referrer"
                   alt=""
                 />
               </Link>

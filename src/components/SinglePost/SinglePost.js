@@ -8,7 +8,7 @@ function SinglePost() {
   const location = useLocation()
   const path = location.pathname.split("/")[2];
   const [post, setPost] = useState({})
-  const PF = "http://localhost:5000/images/";
+  const PF = `https://lh3.googleusercontent.com/d/${post.photo}`;
   const { user } = useContext(Context);
   const [title, setTitle] = useState("");
   const [desc, setDesc] = useState("");
@@ -27,7 +27,8 @@ function SinglePost() {
 
   const handleDelete = async () => {
       try {
-        await axios.delete(`/posts/${post._id}`, {
+        await axios.delete("/posts/" + path, {
+            headers: {authorization: "Bearer " + user.accessToken},
             data : {username: user.username},
         });
         window.location.replace("/");
@@ -38,11 +39,13 @@ function SinglePost() {
 
   const handleUpdate = async () => {
     try {
-      await axios.put(`/posts/${post._id}`, {
+      await axios.put("/posts/" + path,   {
         username: user.username,
         title,
         desc,
-      });
+      },
+      { headers: {authorization: "Bearer " + user.accessToken}}
+    );
       setUpdateMode(false)
     } catch (err) {}
   };
@@ -51,7 +54,9 @@ function SinglePost() {
     <div className="singlePost">
       <div className="singlePostWrapper">
         {post.photo && (
-          <img src={PF + post.photo} alt="" className="singlePostImg" />
+          <img src={PF} alt="" className="singlePostImg"
+            referrerPolicy="no-referrer"
+          />
         )}
         {updateMode ? (
           <input

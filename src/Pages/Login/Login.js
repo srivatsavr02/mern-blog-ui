@@ -1,5 +1,5 @@
 import axios from 'axios';
-import React, { useContext, useRef } from 'react';
+import React, { useContext, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Context } from '../../context/Context';
 import './Login.css';
@@ -8,18 +8,24 @@ function Login() {
   const userRef = useRef();
   const passwordRef = useRef();
   const { dispatch, isFetching } = useContext(Context);
+  const [error, setError] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     dispatch({type:"LOGIN_START"});
     try {
+      setError(false);
       const res = await axios.post("/auth/login", {
         username: userRef.current.value,
         password: passwordRef.current.value,
       })
 
-      dispatch({type:"LOGIN_SUCCESS", payload: res.data});
+      dispatch({
+        type:"LOGIN_SUCCESS", 
+        payload: {...res.data, accessToken: res.headers.authorization}
+      });
     } catch (err) {
+      setError(true);
       dispatch({type:"LOGIN_FAILURE"})
     }
   };
@@ -47,6 +53,7 @@ function Login() {
         <button className="loginRegisterButton">
             <Link to='/register' className='link'>Register</Link>
         </button>
+        {error && <span className='loginError'>Invalid credentials!</span>}
     </div>
   );
 }
