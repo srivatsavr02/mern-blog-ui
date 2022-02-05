@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import SideBar from '../../components/SideBar/SideBar';
 import { Context } from '../../context/Context';
 import './Settings.css';
-import axios from 'axios';
+import axios from '../../axios';
 
 function Settings() {
   const { user, dispatch } = useContext(Context);
